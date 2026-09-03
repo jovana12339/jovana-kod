@@ -5,17 +5,21 @@ import time
 # =========================
 # ARDUINO
 # =========================
+### Ubaciti proveru da li je Arduino povezan
 arduino = serial.Serial("COM4", 9600, timeout=1)
 time.sleep(2)
 
 # =========================
 # KAMERA
 # =========================
+### Ubaciti proveru da li je kamera povezana
 kamera = cv2.VideoCapture(1)
 
 # Početni uglovi
 ugao_levo_desno = 90
 ugao_gore_dole = 90
+
+### Poslati početne uglove na Arduino
 
 # =========================
 # PODESAVANJE BRZINE
@@ -79,6 +83,16 @@ while True:
     )
 
     if konture:
+        ### Ovde izvlačite samo najveću konturu, 
+        # bolje je da prođete kroz sve konture i 
+        # da nađete onu koja je najveća i približno kružna, 
+        # računate cirkularity kao 
+        # 4 * pi * area / (perimeter^2) i uzimate onu koja je najbliža 1.0, 
+        # jer konture mogu biti nepravilne i ne moraju biti krugovi.
+        # OpenCV ima funkciju contourArea koja računa površinu konture, 
+        # a za obim možete koristiti arcLength.
+        # Time ćete dobiti preciznije rezultate i izbeći greške u praćenju.
+
 
         kontura = max(
             konture,
@@ -176,7 +190,9 @@ while True:
                         0,
                         min(180, ugao_gore_dole)
                     )
-
+                    ### Ovde stavite ispitivanje uglovla pre slanja da bi mogli 
+                    # da vidite ako šaljete neke loše vrednosti na Arduino
+                    # Vi sad ispisujete te vrednosti i kad ih ne šaljete.
                     # Pošalji oba serva
                     arduino.write(
                         f"{ugao_levo_desno} {ugao_gore_dole}\n".encode()
